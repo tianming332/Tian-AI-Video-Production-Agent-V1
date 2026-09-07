@@ -423,6 +423,101 @@
     switchTab('work');
   }
 
+  function setupSettings() {
+    const themeNames = { white: '白', gray: '灰', black: '黑' };
+    const languageNames = { 'zh-hans': '简体', 'zh-hant': '繁體', en: 'English' };
+    const settings = el('div', 'settings-dock');
+    settings.innerHTML = `
+      <button class="settings-toggle" type="button" data-settings-toggle aria-label="收起右上角设置" aria-expanded="true">
+        <span aria-hidden="true">&gt;</span><span class="visually-hidden">收起右上角设置</span>
+      </button>
+      <div class="settings-content">
+        <div class="language-control">
+          <span class="settings-label">语言 / LANGUAGE</span>
+          <div class="language-options">
+            <button type="button" data-language-choice="zh-hans">简体</button>
+            <button type="button" data-language-choice="zh-hant">繁體</button>
+            <button type="button" data-language-choice="en">English</button>
+          </div>
+        </div>
+        <div class="theme-control">
+          <span class="settings-label">页面配色 / THEME</span>
+          <div class="theme-options">
+            <button type="button" data-theme-choice="white"><i></i><span>白</span></button>
+            <button type="button" data-theme-choice="gray"><i></i><span>灰</span></button>
+            <button type="button" data-theme-choice="black"><i></i><span>黑</span></button>
+          </div>
+        </div>
+      </div>`;
+    document.body.appendChild(settings);
+
+    const settingsToggle = settings.querySelector('[data-settings-toggle]');
+
+    function applyTheme(theme) {
+      const next = themeNames[theme] ? theme : 'white';
+      document.body.dataset.theme = next;
+      document.querySelectorAll('[data-theme-choice]').forEach(button => {
+        const active = button.dataset.themeChoice === next;
+        button.classList.toggle('active', active);
+        button.setAttribute('aria-pressed', active ? 'true' : 'false');
+      });
+      const themeMeta = document.querySelector('meta[name="theme-color"]');
+      if (themeMeta) themeMeta.content = next === 'black' ? '#101319' : (next === 'gray' ? '#d2d5d8' : '#edf1f6');
+      try { localStorage.setItem('tjm-theme', next); } catch (error) { /* no-op */ }
+    }
+
+    function applyLanguage(language) {
+      const next = languageNames[language] ? language : 'zh-hans';
+      document.documentElement.lang = next === 'en' ? 'en' : (next === 'zh-hant' ? 'zh-Hant' : 'zh-CN');
+      document.body.dataset.language = next;
+      document.querySelectorAll('[data-language-choice]').forEach(button => {
+        const active = button.dataset.languageChoice === next;
+        button.classList.toggle('active', active);
+        button.setAttribute('aria-pressed', active ? 'true' : 'false');
+      });
+      const labels = settings.querySelectorAll('.settings-label');
+      labels[0].textContent = next === 'en' ? 'LANGUAGE' : (next === 'zh-hant' ? '語言 / LANGUAGE' : '语言 / LANGUAGE');
+      labels[1].textContent = next === 'en' ? 'THEME' : (next === 'zh-hant' ? '頁面配色 / THEME' : '页面配色 / THEME');
+      const translatedThemes = next === 'en' ? ['White', 'Gray', 'Black'] : ['白', '灰', '黑'];
+      settings.querySelectorAll('[data-theme-choice] span').forEach((label, index) => { label.textContent = translatedThemes[index]; });
+      try { localStorage.setItem('tjm-language-v2', next); } catch (error) { /* no-op */ }
+    }
+
+    function setSettingsCollapsed(collapsed) {
+      settings.classList.toggle('settings-collapsed', collapsed);
+      settingsToggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+      settingsToggle.setAttribute('aria-label', collapsed ? '展开右上角设置' : '收起右上角设置');
+      settingsToggle.querySelector('[aria-hidden]').textContent = collapsed ? '<' : '>';
+      settingsToggle.querySelector('.visually-hidden').textContent = collapsed ? '展开右上角设置' : '收起右上角设置';
+      try { localStorage.setItem('tjm-settings-dock', collapsed ? 'collapsed' : 'open'); } catch (error) { /* no-op */ }
+    }
+
+    settings.addEventListener('click', event => {
+      const toggle = event.target.closest('[data-settings-toggle]');
+      if (toggle) {
+        setSettingsCollapsed(!settings.classList.contains('settings-collapsed'));
+        return;
+      }
+      const language = event.target.closest('[data-language-choice]');
+      const theme = event.target.closest('[data-theme-choice]');
+      if (language) applyLanguage(language.dataset.languageChoice);
+      if (theme) applyTheme(theme.dataset.themeChoice);
+    });
+
+    let savedTheme = 'white';
+    let savedLanguage = 'zh-hans';
+    let savedCollapsed = false;
+    try {
+      const query = new URLSearchParams(location.search);
+      savedTheme = query.get('theme') || localStorage.getItem('tjm-theme') || 'white';
+      savedLanguage = query.get('lang') || localStorage.getItem('tjm-language-v2') || 'zh-hans';
+      savedCollapsed = localStorage.getItem('tjm-settings-dock') === 'collapsed';
+    } catch (error) { /* no-op */ }
+    applyTheme(savedTheme);
+    applyLanguage(savedLanguage);
+    setSettingsCollapsed(savedCollapsed);
+  }
+
   document.querySelectorAll('[data-tab]').forEach(b => b.addEventListener('click', () => switchTab(b.dataset.tab)));
   document.querySelectorAll('[data-artifact-filter]').forEach(b => b.addEventListener('click', () => { state.filter = b.dataset.artifactFilter; renderArtifacts(); }));
   document.querySelectorAll('[data-starter]').forEach(b => b.addEventListener('click', () => { $('prompt').value = b.dataset.starter; $('prompt').focus(); }));
@@ -449,6 +544,7 @@
   $('close-image').addEventListener('click', () => { $('image-dialog').close(); $('preview-image').removeAttribute('src'); });
   $('close-artifact').addEventListener('click', () => { $('artifact-dialog').close(); $('artifact-preview').innerHTML = ''; });
 
+  setupSettings();
   renderCompareTabs();
   reset();
 })();
