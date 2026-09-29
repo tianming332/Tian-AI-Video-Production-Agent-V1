@@ -1,0 +1,23 @@
+/* Static Agent demo: quieter surfaces and a more legible task hierarchy. */
+html[data-tjm-ui="agent"] body { --tjm-ui-accent:#3157ff; }
+html[data-tjm-ui="agent"] .workspace-head h1 { letter-spacing:-.035em;line-height:1.35; }
+html[data-tjm-ui="agent"] :is(.conversation,.board,.artifact-stage-panel) { box-shadow:0 12px 36px rgba(27,42,68,.06),inset 0 1px 0 rgba(255,255,255,.5); }
+html[data-tjm-ui="agent"] #composer { border-radius:18px;transition:box-shadow .3s,border-color .3s; }
+html[data-tjm-ui="agent"] #composer:focus-within { border-color:rgba(49,87,255,.35);box-shadow:0 0 0 4px rgba(49,87,255,.065),0 10px 24px rgba(27,42,68,.05); }
+html[data-tjm-ui="agent"] #prompt { font-size:13px;line-height:1.85; }
+html[data-tjm-ui="agent"] .send { box-shadow:0 4px 14px rgba(49,87,255,.2); }
+html[data-tjm-ui="agent"] .artifact-step { border-radius:10px; }
+html[data-tjm-ui="agent"] .artifact-step.active { box-shadow:inset 0 -2px 0 var(--blue); }
+html[data-tjm-ui="agent"] .review-card { border-radius:16px;box-shadow:0 7px 22px rgba(49,87,255,.06); }
+html[data-tjm-ui="agent"] .review-card p { line-height:1.85; }
+html[data-tjm-ui="agent"] :is(.artifact-card,.thumb) { transition:translate .35s var(--tjm-ui-ease),box-shadow .3s; }
+html[data-tjm-ui="agent"] :is(.artifact-card,.thumb):hover { translate:0 -2px;box-shadow:0 10px 26px rgba(27,42,68,.09); }
+html[data-tjm-ui="agent"] .metrics strong { font-variant-numeric:tabular-nums; }
+html[data-tjm-ui="agent"] .task.current { box-shadow:inset 3px 0 0 var(--blue),0 5px 15px rgba(49,87,255,.07)!important; }
+html[data-tjm-ui="agent"] dialog { border-radius:22px;border-color:var(--line);box-shadow:0 30px 90px rgba(0,0,0,.22); }
+html[data-tjm-ui="agent"] .dialog-head { border-bottom:1px solid var(--line);padding-bottom:16px; }
+html[data-tjm-ui="agent"] .dialog-head button { width:36px;height:36px;border-radius:50%;background:color-mix(in srgb,var(--ink) 5%,transparent); }
+html[data-tjm-ui="agent"] .skip:focus { position:fixed;top:12px;left:94px;z-index:4000;width:auto;height:auto;clip-path:none;padding:12px 18px;border-radius:12px;background:var(--ink);color:var(--surface); }
+html[data-tjm-ui="agent"] body[data-theme="black"] { --tjm-ui-accent:#aebfff; }
+html[data-tjm-ui="agent"] body[data-theme="black"] :is(.conversation,.board,.artifact-stage-panel) { box-shadow:0 12px 38px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.07); }
+@media(max-width:760px){html[data-tjm-ui="agent"] .workspace-head h1{font-size:23px}html[data-tjm-ui="agent"] #prompt{font-size:14px}html[data-tjm-ui="agent"] .artifact-step{min-height:42px}html[data-tjm-ui="agent"] dialog{max-width:calc(100vw - 24px)}}
